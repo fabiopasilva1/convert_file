@@ -5,4 +5,4 @@ convert(directory, name, './newPath', 'csv', (err) => {
     if (err) {
         console.log(err)
     }
-}, 5000, 100)
+}, 5000, 1000)
