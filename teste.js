@@ -1,8 +1,4 @@
 const convert = require("./index.js");
-var directory = "E:\\uneelOnTarget\\bases\\BASES DE ENERGIA\\BASES DE ENERGIA\\CEEE NOVA";
-var name = "Enel PJ completa_02.txt";
-convert(directory, name, './newPath2', 'csv', (err) => {
-    if (err) {
-        console.log(err)
-    }
-}, 5000, 100)
+var directory = "./";
+var name = "teste.txt";
+convert({ path: directory, name: name, new_path: './ewPath2', ext: "csv", callback: console.log, chunk_size: 100, pause_time: 100, header: true });

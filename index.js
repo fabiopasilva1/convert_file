@@ -3,7 +3,7 @@ const readline = require('readline');
 const os = require('os');
 const ProgressBar = require('progress');
 
-module.exports = async (path, name, new_path, ext, callback, chunk_size = 1000, pause_time = 400, header = false) => {
+module.exports = async ({ path, name, new_path, ext, callback, chunk_size = 1000, pause_time = 400, header = false }) => {
     console.log("Início da função converter");
 
     try {
