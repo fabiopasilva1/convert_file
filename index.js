@@ -2,86 +2,130 @@ const fs = require('fs');
 const readline = require('readline');
 const os = require('os');
 const ProgressBar = require('progress');
+
 /**
- * Converts a .txt file to .csv file and moves to a new path
- * @param {string} path - The path of the to be converted
- * @param {string} name - The name of the .txt or .csv file
- * @param {string} new_path - The path where the .csv file will be saved
- * @param {string} ext - The extension of the new file
- * @param {number} chunk_size - The number of lines to process at once
- * @param {number} pause_time - The time to pause between processing each chunk, default is 400ms
- * @param {function} callback - The callback that will be called after the file has been converted and moved
+ * Converte um arquivo .txt para .csv, corrigindo caracteres especiais,
+ * tratando cabeçalho (opcional) e removendo vírgulas extras.
+ * @param {string} path - O caminho do arquivo a ser convertido
+ * @param {string} name - O nome do arquivo .txt ou .csv
+ * @param {string} new_path - O caminho onde o arquivo .csv será salvo
+ * @param {string} ext - A extensão do novo arquivo
+ * @param {function} callback - O callback que será chamado após a conversão e movimentação do arquivo
+ * @param {number} chunk_size - O número de linhas a serem processadas por vez
+ * @param {number} pause_time - O tempo de pausa entre o processamento de cada chunk
+ * @param {boolean} header - Indica se a primeira linha do arquivo é um cabeçalho (opcional)
  */
-module.exports = async (path, name, new_path, ext, callback, chunk_size = 1000, pause_time = 400) => {
+module.exports = async (path, name, new_path, ext, callback, chunk_size = 1000, pause_time = 400, header = false) => {
     console.log({
         path,
         name,
         new_path,
         ext,
         chunk_size,
-        pause_time
+        pause_time,
+        header
     });
 
     const temp_path = os.tmpdir();
     const txt_path = path + '/' + name;
     const txt_path_temp = temp_path + '/' + name.split('.')[0] + "." + ext;
 
-    // Create the 'temp' directory if it doesn't exist
     fs.mkdirSync(new_path, { recursive: true });
 
-    // Remove the temp file if it exists to avoid appending to old data.
     try {
         fs.unlinkSync(txt_path_temp);
     } catch (err) {
-        if (err.code !== 'ENOENT') { // Ignore "file not found" errors
-            console.error("Error deleting existing temp file:", err);
+        if (err.code !== 'ENOENT') {
+            console.error("Erro ao deletar arquivo temporário existente:", err);
         }
     }
 
-    const readStream = fs.createReadStream(txt_path, { highWaterMark: 64 * 1024 }); // Adjust highWaterMark as needed
+    const readStream = fs.createReadStream(txt_path, { highWaterMark: 64 * 1024 });
 
     let lineCount = 0;
     let processedLines = 0;
-    // First, count the lines (without loading everything into memory)
+    let delimiter = null;
+    let isFirstLine = true;
+
     const lineCounter = readline.createInterface({
         input: readStream,
         crlfDelay: Infinity
     });
 
-    lineCounter.on('line', () => {
+    lineCounter.on('line', (line) => {
         lineCount++;
+        if (delimiter === null) {
+            if (line.includes('\t')) {
+                delimiter = '\t';
+            } else if (line.includes(';')) {
+                delimiter = ';';
+            } else if (line.includes(' ')) {
+                delimiter = ' ';
+            }
+        }
     });
 
     lineCounter.on('close', async () => {
-        console.log(`O arquivo ${txt_path} tem ${fs.statSync(txt_path).size / (1024 * 1024)}MB`);
-        console.log(`O arquivo ${txt_path} tem ${lineCount} linhas.`);
+        if (delimiter === null) {
+            delimiter = ' ';
+            console.warn("Nenhum delimitador claro detectado. Usando espaço como padrão.");
+        }
+
+        console.log(`Delimitador detectado: '${delimiter}'`);
+        console.log(`Arquivo ${txt_path} tem ${fs.statSync(txt_path).size / (1024 * 1024)}MB`);
+        console.log(`Arquivo ${txt_path} tem ${lineCount} linhas.`);
 
         const bar = new ProgressBar('[:bar] :percent - :etas - :current/:total - :rate - :elapseds', {
             complete: '=',
-            incomplete: ' ',
+            incomplete: '-',
             width: 40,
             total: lineCount,
-
         });
 
         const size = fs.statSync(txt_path).size;
         const sizeMB = size / (1024 * 1024);
         bar.interrupt(`Tamanho do arquivo: ${sizeMB.toFixed(2)}MB - Faltam ${((sizeMB - (processedLines / (1024 * 1024))) / sizeMB * 100).toFixed(2)}% para concluir`);
 
-        const readStreamForProcessing = fs.createReadStream(txt_path, { highWaterMark: 64 * 1024 }); // New stream for processing
+        const readStreamForProcessing = fs.createReadStream(txt_path, { highWaterMark: 64 * 1024 });
         const rl = readline.createInterface({
             input: readStreamForProcessing,
             crlfDelay: Infinity
         });
 
         let chunk = [];
-        rl.on('line', async (line) => {
-            line = line.replace(/\t/g, ',').trim().replace(/\s+/g, ' ');
 
-            chunk.push(line);
+        rl.on('line', async (line) => {
+
+            if (delimiter === '\t') {
+
+
+                line = line.replace(/\t/g, ',');
+            }
+            if (delimiter === ';') {
+                line = line.replace(/;/g, ',');
+            }
+            if (delimiter === ' ') {
+                line = line.replace(/  /g, ',');
+            }
+            // remove espaços em excesso e entre as delimitadores
+            line = line.replace(/, +/g, ',').replace(/ +,/g, ',');
+
+
+
+
+            if (header && isFirstLine) {
+                fs.appendFile(txt_path_temp, line.trim().replace(/s/g, '') + '\n', (err) => {
+                    if (err) console.error("Erro ao escrever cabeçalho no arquivo temporário:", err);
+                });
+                isFirstLine = false;
+            } else {
+                chunk.push(line);
+            }
+
             if (chunk.length >= chunk_size) {
-                fs.appendFile(txt_path_temp, chunk.join('\n') + '\n', (err) => {
-                    if (err) console.error("Error writing to temp file:", err);
+                const formattedChunk = chunk.join('\n') + '\n';
+                fs.appendFile(txt_path_temp, formattedChunk, (err) => {
+                    if (err) console.error("Erro ao escrever no arquivo temporário:", err);
                 });
 
                 processedLines += chunk.length;
@@ -95,50 +139,48 @@ module.exports = async (path, name, new_path, ext, callback, chunk_size = 1000, 
 
         rl.on('close', async () => {
             if (chunk.length > 0) {
-                fs.appendFile(txt_path_temp, chunk.join('\n'), (err) => {
-                    if (err) console.error("Error writing to temp file:", err);
+                const formattedChunk = chunk.join('\n') + '\n';
+                fs.appendFile(txt_path_temp, formattedChunk, (err) => {
+                    if (err) console.error("Erro ao escrever no arquivo temporário:", err);
                 });
 
                 processedLines += chunk.length;
                 bar.tick(chunk.length);
             }
 
-            console.log("File processing complete.");
-            console.log(`O arquivo ${txt_path_temp} tem ${fs.statSync(txt_path_temp).size / (1024 * 1024)}MB`);
-            // Mover para novo caminho
+            console.log("Processamento do arquivo concluído.");
+            console.log(`Arquivo ${txt_path_temp} tem ${fs.statSync(txt_path_temp).size / (1024 * 1024)}MB`);
+
             const readStreamTemp = fs.createReadStream(txt_path_temp);
             const writeStreamNewPath = fs.createWriteStream(new_path + '/' + name.split('.')[0] + '.' + ext);
 
             readStreamTemp.pipe(writeStreamNewPath);
 
             readStreamTemp.on('error', (err) => {
-                console.error("Error reading temp file:", err);
+                console.error("Erro ao ler arquivo temporário:", err);
             });
 
             writeStreamNewPath.on('error', (err) => {
-                console.error("Error writing to new file:", err);
+                console.error("Erro ao escrever novo arquivo:", err);
             });
 
             writeStreamNewPath.on('finish', () => {
-                console.log("File moved.");
+                console.log("Arquivo movido.");
             });
 
             readStreamTemp.on('close', () => {
                 fs.unlinkSync(txt_path_temp);
             });
+
             callback(new_path);
         });
 
         rl.on('error', (err) => {
-            console.error("Error reading or processing file:", err);
+            console.error("Erro ao ler ou processar arquivo:", err);
         });
-
     });
 
     lineCounter.on('error', (err) => {
-        console.error("Error counting lines:", err);
+        console.error("Erro ao contar linhas:", err);
     });
-
-}
-
-
+};
