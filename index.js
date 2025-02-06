@@ -30,6 +30,15 @@ module.exports = async ({
     pause_time = 400,
     header = false,
 }) => {
+    if (!path) {
+        throw new Error('path is required');
+    }
+    if (!file_name) {
+        throw new Error('file_name is required');
+    }
+    if (!new_path) {
+        throw new Error('new_path is required');
+    }
     console.log("Início da função converter");
 
     try {
@@ -222,6 +231,7 @@ module.exports = async ({
 
                 readStreamTemp.on("close", () => {
                     fs.unlinkSync(txt_path_temp);
+                    callback(new_path);
                 });
 
                 callback(new_path);
@@ -238,6 +248,6 @@ module.exports = async ({
     } catch (error) {
         console.error("Erro na função converter:", error);
     }
-
+    callback(new_path);
     console.log("Fim da função converter");
 };
