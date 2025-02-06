@@ -1,63 +1,56 @@
-# convert_file
+# @presstencao/convert_file
 
-This module converts a `.txt` file to a `.csv` file and moves it to a new path.
+## Descrição
 
-## Installation
+Este pacote é utilizado para converter arquivos `.txt` para `.csv` e mover o arquivo convertido para um novo caminho. Ele possui funcionalidades para manipulação de arquivos em chunks, permitindo o processamento de grandes volumes de dados.
 
-You can install this module with npm: npm i @presstencao/convert_file
+## Instalação
 
-## API
+Para instalar o pacote, utilize o npm:
 
-### convert(options)
+```bash
+npm install @presstencao/convert_file
+```
 
-Converts a `.txt` file to a `.csv` file and moves it to a new path.
+## Uso
 
-#### Options
+### Conversão de Arquivo `.txt` para `.csv`
 
-##### path
+A função principal do pacote realiza a conversão de um arquivo `.txt` para `.csv` e move o arquivo resultante para um novo diretório.
 
-Type: `string`
+### Parâmetros
 
-The path of the directory where the `.txt` file is located.
+-   `options` (Object): Objeto de opções contendo os seguintes campos:
+    -   `path` (string): O caminho do diretório onde o arquivo `.txt` está localizado.
+    -   `file_name` (string): O nome do arquivo `.txt` que deseja converter.
+    -   `new_path` (string): O caminho do diretório onde o arquivo `.csv` deve ser movido.
+    -   `ext` (string): A extensão do arquivo que deseja converter (padrão: `csv`).
+    -   `callback` (Function) [opcional]: A função de callback que será chamada após o término do processamento.
+    -   `chunk_size` (number) [opcional]: O tamanho do chunk que será processado por vez (padrão: 1000).
+    -   `pause_time` (number) [opcional]: O tempo de pausa entre cada chunk (padrão: 400ms).
+    -   `header` (boolean) [opcional]: Indica se o arquivo tem um cabeçalho (padrão: false).
 
-##### file_name
+### Exemplo
 
-Type: `string`
+```javascript
+const convert = require("@presstencao/convert_file");
 
-The name of the `.txt` file you want to convert.
+convert({
+    path: "./",
+    file_name: "example.txt",
+    new_path: "./converted",
+    ext: "csv",
+    callback: console.log,
+    chunk_size: 1000,
+    pause_time: 400,
+    header: false,
+});
+```
 
-##### new_path
+## Contribuição
 
-Type: `string`
+Para contribuir com o projeto, envie um pull request no repositório do GitHub: [convert_file](https://github.com/fabiopasilva1/convert_file).
 
-The path of the directory where the `.csv` file should be moved.
+## Licença
 
-##### ext
-
-Type: `string`
-
-The extension of the file that you want to convert (default: `csv`).
-
-##### callback
-
-Type: `Function`
-
-The callback function that will be called after the end of the process (optional).
-
-##### chunk_size
-
-Type: `number`
-
-The size of the chunk that will be processed at once (default: 1000).
-
-##### pause_time
-
-Type: `number`
-
-The time of pause between each chunk (default: 400ms).
-
-##### header
-
-Type: `boolean`
-
-Indicates if the file has a header (default: false).
+Este projeto está licenciado sob a Licença ISC.
