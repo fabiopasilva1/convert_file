@@ -4,7 +4,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "publish": " npm publish --access public"
+    "publish": "git push -u origin main --tags && npm publish --access public "
   },
   "keywords": [],
   "author": "presstencao",
