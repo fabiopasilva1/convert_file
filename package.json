@@ -1,6 +1,6 @@
 {
   "name": "@presstencao/convert_file",
-  "version": "1.0.21",
+  "version": "1.0.22",
   "main": "index.js",
   "bin": {
     "convert_file": "./index.js"
