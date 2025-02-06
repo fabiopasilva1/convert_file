@@ -2,6 +2,9 @@
   "name": "@presstencao/convert_file",
   "version": "1.0.19",
   "main": "index.js",
+  "bin": {
+    "convert_file": "./index.js"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "deploy": "git push -u origin main --tags && npm publish --access public "
