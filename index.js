@@ -5,15 +5,16 @@ const os = require('os');
 
 /**
  * Converts a .txt file to .csv file and moves to a new path
- * @param {string} path - The path of the .txt file to be converted
+ * @param {string} path - The path of the to be converted
+ * @param {string} name - The name of the .txt or .csv file
  * @param {string} new_path - The path where the .csv file will be saved
  * @param {string} ext - The extension of the new file
  * @param {function} callback - The callback that will be called after the file has been converted and moved
  */
-module.exports = (path, new_path, ext, callback) => {
+module.exports = (path, name, new_path, ext, callback) => {
     const temp_path = os.tmpdir();
-    const txt_path = path;
-    const txt_path_temp = temp_path + '/cpfl' + "." + ext;
+    const txt_path = path + '/' + name;
+    const txt_path_temp = temp_path + '/' + name + "." + ext;
 
     // Create the 'temp' directory if it doesn't exist
     fs.mkdirSync('./temp', { recursive: true });
