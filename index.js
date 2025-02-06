@@ -13,7 +13,7 @@ const os = require('os');
 module.exports = (path, new_path, ext, callback) => {
     const temp_path = os.tmpdir();
     const txt_path = path;
-    const txt_path_temp = temp_path + '/cpfl' + ext;
+    const txt_path_temp = temp_path + '/cpfl' + "." + ext;
 
     // Create the 'temp' directory if it doesn't exist
     fs.mkdirSync('./temp', { recursive: true });
