@@ -12,6 +12,12 @@ Para instalar o pacote, utilize o npm:
 npm install @presstencao/convert_file
 ```
 
+ou
+
+```bash
+yarn add @presstencao/convert_file
+```
+
 ## Uso
 
 ### Conversão de Arquivo `.txt` para `.csv`
@@ -51,6 +57,21 @@ convert({
 
 Para contribuir com o projeto, envie um pull request no repositório do GitHub: [convert_file](https://github.com/fabiopasilva1/convert_file).
 
+Visite também:
+
+[NPM](https://www.npmjs.com/package/@presstencao/convert_file) para mais informações.
+[YARN](https://yarn.pm/@presstencao/convert_file) para mais informações.
+
 ## Licença
 
-Este projeto está licenciado sob a Licença ISC.
+Este projeto está licenciado sob a Licença MIT.
+
+## Dependências do Sistema
+
+"express": "^4.21.2",
+"fs": "^0.0.1-security",
+"progress": "^2.0.3"
+
+## Versão do Node.js compativel
+
+^16.0.0 - 18.0.0
