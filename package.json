@@ -4,11 +4,25 @@
     "main": "index.js",
     "scripts": {
         "test": "jest --coverage",
-        "deploy": "git push -u origin main --tags && npm publish --access public "
+        "deploy": "npm publish --access public ",
+        "publish": "npm publish --access public",
+        "git":"git add . && git commit -m 'update' && git push -u origin main --tags"
     },
-    "keywords": [],
+    "workspaces": [
+        "/*"
+    ],
+    "keywords": [
+        "csv",
+        "txt",
+        "convert",
+        "file"
+    ],
+    "files": [
+        "index.js",
+        "package.json"
+    ],
     "author": "presstencao",
-    "license": "ISC",
+    "license": "MIT",
     "description": "",
     "dependencies": {
         "express": "^4.21.2",
@@ -24,5 +38,6 @@
     },
     "devDependencies": {
         "jest": "^29.7.0"
-    }
+    },
+    "packageManager": "yarn@4.6.0"
 }
