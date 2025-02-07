@@ -6,7 +6,7 @@
         "test": "jest --coverage",
         "deploy": "npm publish --access public ",
         "publish": "npm publish --access public",
-        "git":"git add . && git commit -m 'update' && git push -u origin main --tags"
+        "git": "git add . && git commit -m 'update' && npm version patch && git push -u origin main --tags"
     },
     "workspaces": [
         "/*"
