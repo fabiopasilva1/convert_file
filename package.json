@@ -15,7 +15,10 @@
         "csv",
         "txt",
         "convert",
-        "file"
+        "file",
+        "converter",
+        "converter",
+        "conversor"
     ],
     "files": [
         "index.js",
